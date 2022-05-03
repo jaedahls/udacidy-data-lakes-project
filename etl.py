@@ -13,6 +13,7 @@ os.environ['AWS_ACCESS_KEY_ID']=config['AWS CREDS']['AWS_ACCESS_KEY_ID']
 os.environ['AWS_SECRET_ACCESS_KEY']=config['AWS CREDS']['AWS_SECRET_ACCESS_KEY']
 
 def create_spark_session():
+    """Creates the spark session"""
     spark = SparkSession \
         .builder \
         .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:2.7.0") \
@@ -20,6 +21,7 @@ def create_spark_session():
     return spark
 
 def process_song_data(spark, input_data, output_data):
+    """Loads song data from S3 and writes tables back to S3"""
     # get filepath to song data file
     song_data = input_data + 'song_data/*/*/*/*.json'
     
@@ -40,6 +42,7 @@ def process_song_data(spark, input_data, output_data):
     artists_table.write.mode('overwrite').parquet(output_data + 'artists.parquet')
 
 def process_log_data(spark, input_data, output_data):
+    """Loads log data from S3 and writes tables back to S3"""
     # get filepath to log data file
     log_data = input_data + 'log_data/*/*/*.json'
 
@@ -61,6 +64,7 @@ def process_log_data(spark, input_data, output_data):
 
     # create timestamp column from original timestamp column
     def format_datetime(ts):
+        """Formats a timestamp to a datetime"""
         return datetime.fromtimestamp(ts/1000.0)
 
     get_timestamp = udf(lambda x: format_datetime(int(x)),TimestampType())
@@ -115,8 +119,9 @@ def process_log_data(spark, input_data, output_data):
                          .parquet(output_data + 'songplays.parquet')
 
 def main():
+    """Iniaties spark and executes the processing of S3 JSON data"""
     spark = create_spark_session()
-    input_data = 's3a://udacity-dend/'
+    input_data = 's3://udacity-dend/'
     output_data = 's3://jdsawsudacitybucket/data-lakes/parquet/'
     
     process_song_data(spark, input_data, output_data)    
