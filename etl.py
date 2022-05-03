@@ -24,9 +24,22 @@ def process_song_data(spark, input_data, output_data):
     """Loads song data from S3 and writes tables back to S3"""
     # get filepath to song data file
     song_data = input_data + 'song_data/*/*/*/*.json'
+
+    #create schema
+    schema = StructType([
+        StructField('num_songs', IntegerType(), True),
+        StructField('artist_id', StringType(), True),
+        StructField('artist_latitude', StringType(), True),
+        StructField('artist_longitude', IntegerType(), True),
+        StructField('artist_location', StringType(), True),
+        StructField('artist_name', StringType(), True),
+        StructField('title', StringType(), True),
+        StructField('duration', FloatType(), True),
+        StructField('year', IntegerType(), True)
+    ])
     
     # read song data file
-    df = spark.read.json(song_data, multiLine=True)
+    df = spark.read.json(song_data, multiLine=True, schema=schema)
 
     # extract columns to create songs table
     songs_table = df[['song_id','title', 'artist_id', 'year', 'duration']]    
@@ -46,8 +59,21 @@ def process_log_data(spark, input_data, output_data):
     # get filepath to log data file
     log_data = input_data + 'log_data/*/*/*.json'
 
+    #create schema
+    schema = StructType([
+        StructField('num_songs', IntegerType(), True),
+        StructField('artist_id', StringType(), True),
+        StructField('artist_latitude', StringType(), True),
+        StructField('artist_longitude', IntegerType(), True),
+        StructField('artist_location', StringType(), True),
+        StructField('artist_name', StringType(), True),
+        StructField('title', StringType(), True),
+        StructField('duration', FloatType(), True),
+        StructField('year', IntegerType(), True)
+    ])
+
     # read log data file
-    df = spark.read.json(log_data)
+    df = spark.read.json(log_data, schema=schema)
     
     # filter by actions for song plays
     df = df.filter(df['page']=="NextSong")
